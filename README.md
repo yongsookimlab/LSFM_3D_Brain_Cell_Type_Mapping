@@ -81,16 +81,16 @@ In brief:
 > Note: This README provides an overview for executing the following MATLAB scripts: 1) Editing parameter settings with **EDIT_THIS_001_param_setting.m**, and 2) Running the main script **RUN_THIS_002_batch_counting3d.m** that calls on a collective of scripts in the **private** folder. It is crucial to refer to the comments (preceded by % and %%%) in the main script for detailed information on each section and parameter.
 
 I. Edit ‘sess2process.csv’
-This CSV file contains the location/path of the sample images and the functional switches. By adding rows, you can sequentially process multiple datasets. In each column, 1 = switch on, and 0 = switch off, to individually run different parts of the counting code.
-  •	Column A – path_sess: path to your data (session) to process. This path must be directed to the data folder.
-  •	Column B – switch_registration: use ANTs for image registration.
-  •	Column C – switch_preprocess: performs image preprocessing (remove background, make intensity even, etc). 
-  •	Column D – use_preprocessed_img_for_ML: if you want to use preprocessed images for the ilastik model and cell counting, you should set use_preprocessed_img_for_ML = 1. Otherwise, set columns C and D to 0 (zero).
-  •	Column E – switch_machine_learning: applies trained ilastik classification model to entire stitched dataset of indicated signal channel.
-  •	Column F – switch_counting3d: takes ML classification results, applies size and gaussian filters to find the local maxima and centroid (of cells), then, using xyz coordinates of counted cells, performs 3D correction to remove multiple counted cells in a specific location, thus preventing overcounting.
-  •	Column G – switch_postprocess: applies ANTs transformation of counted cell coordinates to the sample data space and the reference brain-registered sample image. Additionally, it generates a quantitative CSV output of counted cells, brain region volumes, and cell densities based on your brain region ontology of choice (ie. CCFv3). 
-  •	Column H – switch_qc3d: provides visualization to enable quality check of 3D counted cells .
-  •	Column I & J – size_filter_pxl_thr1 & size_filter_pxl_thr2: after cell identification by ML (ilastik), you can further filter out cells that are either too small or too large by setting size thresholds. Thr1 is the lower bound and thr2 is the upper bound. 
+This CSV file contains the location/path of the sample images and the functional switches. By adding rows, you can sequentially process multiple datasets. In each column, 1 = switch on, and 0 = switch off, to individually run different parts of the counting code. 
+  - Column A – path_sess: path to your data (session) to process. This path must be directed to the data folder.
+  - Column B – switch_registration: use ANTs for image registration.
+  - Column C – switch_preprocess: performs image preprocessing (remove background, make intensity even, etc). 
+  - Column D – use_preprocessed_img_for_ML: if you want to use preprocessed images for the ilastik model and cell counting, you should set use_preprocessed_img_for_ML = 1. Otherwise, set columns C and D to 0 (zero).
+  -	Column E – switch_machine_learning: applies trained ilastik classification model to entire stitched dataset of indicated signal channel.
+  -	Column F – switch_counting3d: takes ML classification results, applies size and gaussian filters to find the local maxima and centroid (of cells), then, using xyz coordinates of counted cells, performs 3D correction to remove multiple counted cells in a specific location, thus preventing overcounting.
+  -	Column G – switch_postprocess: applies ANTs transformation of counted cell coordinates to the sample data space and the reference brain-registered sample image. Additionally, it generates a quantitative CSV output of counted cells, brain region volumes, and cell densities based on your brain region ontology of choice (ie. CCFv3). 
+  -	Column H – switch_qc3d: provides visualization to enable quality check of 3D counted cells .
+  -	Column I & J – size_filter_pxl_thr1 & size_filter_pxl_thr2: after cell identification by ML (ilastik), you can further filter out cells that are either too small or too large by setting size thresholds. Thr1 is the lower bound and thr2 is the upper bound. 
 
 II.	Edit ‘EDIT_THIS_001_param_setting.m’
 Here, you can specify parameters for your data. For instance, you can specify image resolution for downscaling, iDISCO vs. LifeCanvas sample (different brain orientation), reference brain, annotation file, etc.
