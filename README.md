@@ -97,38 +97,38 @@ Here, you can specify parameters for your data. For instance, you can specify im
 Within the script, only edit what is written in blue, if necessary.
 
 1)	Basic
-  •	params.signal_ch = 1 – identify signal channel from LSFM output; 0 = stitched_00, 1 = stitched_01, 2 = stitched_02
-  •	params.is_LifeCanvas = 1 – this setting has to do with the preferred brain orientation for LSFM imaging in the Kim Lab; 1 = LifeCanvas; 0 = iDISCO; check Advanced Settings at the bottom of the script for editing orientation
-  •	params.xyz_resolution = [1.8 1.8 5.0] – for 4x objective LSFM imaging with 5um z-step intervals, the xyz resolution should be set to [1.80, 1.80, 5]; change if otherwise.
-  •	params.target_resolution = 20 – indicate the target resolution for registration. The downsampled image resolution is usually 20um isotropic, so set this equal to 20.
+  -	params.signal_ch = 1 – identify signal channel from LSFM output; 0 = stitched_00, 1 = stitched_01, 2 = stitched_02
+  -	params.is_LifeCanvas = 1 – this setting has to do with the preferred brain orientation for LSFM imaging in the Kim Lab; 1 = LifeCanvas; 0 = iDISCO; check Advanced Settings at the bottom of the script for editing orientation
+  -	params.xyz_resolution = [1.8 1.8 5.0] – for 4x objective LSFM imaging with 5um z-step intervals, the xyz resolution should be set to [1.80, 1.80, 5]; change if otherwise.
+  -	params.target_resolution = 20 – indicate the target resolution for registration. The downsampled image resolution is usually 20um isotropic, so set this equal to 20.
 
 2)	ML – location of your ilastik model
-  •	params.path_ml_project - set path location to ilastik trained ML trained model, including file name
+  -	params.path_ml_project - set path location to ilastik trained ML trained model, including file name
 
 3)	ANTs registration
-  •	params.path_ref = [pwd filesep 'ref_brains']; (Do not change)
-  •	params.path_ANTs_tmp = 'D:\ANTs_tmp'; if ~exist(params.path_ANTs_tmp, 'dir'), mkdir(params.path_ANTs_tmp); end (Do not change)
-  •	params.fixed = [params.path_ANTs_tmp filesep 'rotated_chx.nii.gz']; (Do not change)
-  •	params.moving = [params.path_ref filesep 'T_P04_LSFM_Symmetric20um_template0_u16_n10_clean_PA.nii'];
-    o	Reference brain template for ANTs registration must be saved as a nifti (.nii) file in the ref_brains folder within the parent working directory (pwd). 
-    o	Check the Properties of the file in Fiji/ImageJ and make sure the pixel width, height, and depth are 1 per pixel.
-  •	params.anno = [params.path_ref filesep 'P04_CCFv3_annotations_16b_v3_iso20um_u16.nii'];
-    o	Reference brain annotations for ANTs registration must be saved as a nifti (.nii) file in the ref_brains folder within the parent working directory (pwd). 
-    o	Check the Properties of the file in Fiji/ImageJ and make sure the pixel width, height, and depth are 1 per pixel.
-  •	params.path2downsample = [path_sess filesep 'stitched_00'];
-    o	Indicate which imaged data folder will be used for down sampling. This is typically a background, autofluorescence channel. 
-  •	params.thr_blurs = 17000 – Set the threshold for background blurs in LSFM data; working range: 12000 ~ 20000
+  -	params.path_ref = [pwd filesep 'ref_brains']; (Do not change)
+  -	params.path_ANTs_tmp = 'D:\ANTs_tmp'; if ~exist(params.path_ANTs_tmp, 'dir'), mkdir(params.path_ANTs_tmp); end (Do not change)
+  -	params.fixed = [params.path_ANTs_tmp filesep 'rotated_chx.nii.gz']; (Do not change)
+  -	params.moving = [params.path_ref filesep 'T_P04_LSFM_Symmetric20um_template0_u16_n10_clean_PA.nii'];
+    -	Reference brain template for ANTs registration must be saved as a nifti (.nii) file in the ref_brains folder within the parent working directory (pwd). 
+    -	Check the Properties of the file in Fiji/ImageJ and make sure the pixel width, height, and depth are 1 per pixel.
+  -	params.anno = [params.path_ref filesep 'P04_CCFv3_annotations_16b_v3_iso20um_u16.nii'];
+    -	Reference brain annotations for ANTs registration must be saved as a nifti (.nii) file in the ref_brains folder within the parent working directory (pwd). 
+    -	Check the Properties of the file in Fiji/ImageJ and make sure the pixel width, height, and depth are 1 per pixel.
+  -	params.path2downsample = [path_sess filesep 'stitched_00'];
+    -	Indicate which imaged data folder will be used for down sampling. This is typically a background, autofluorescence channel. 
+  -	params.thr_blurs = 17000 – Set the threshold for background blurs in LSFM data; working range: 12000 ~ 20000
 
 4)	Cell counting 3d
-  •	params.size_filter_pxl_thr1 = size_filter_pxl_thr1; (Do not change) – if need to change, edit sess2process.csv
-  •	params.size_filter_pxl_thr2 = size_filter_pxl_thr2; (Do not change) – if need to change, edit sess2process.csv
+  -	params.size_filter_pxl_thr1 = size_filter_pxl_thr1; (Do not change) – if need to change, edit sess2process.csv
+  -	params.size_filter_pxl_thr2 = size_filter_pxl_thr2; (Do not change) – if need to change, edit sess2process.csv
 
 5)	QC 3D
-  •	params.z_step = 200 – indicate the Z-step size interval for QC; e.g. skip every 200 z-steps
-  •	params.z_block_depth = 9 – validate 10 z-sections (1+9); e.g.) 1-10, 200-210, ... etc
-  •	params.z_padding = 2 – set the z-step padding outside of ROI block depth
-  •	params.increase_contrast = 0 – change only when image contrast is not good
-  •	params.img_ceiling = 7000 – set the max intensity value of imgs; to increase contrast
+  -	params.z_step = 200 – indicate the Z-step size interval for QC; e.g. skip every 200 z-steps
+  -	params.z_block_depth = 9 – validate 10 z-sections (1+9); e.g.) 1-10, 200-210, ... etc
+  -	params.z_padding = 2 – set the z-step padding outside of ROI block depth
+  -	params.increase_contrast = 0 – change only when image contrast is not good
+  -	params.img_ceiling = 7000 – set the max intensity value of imgs; to increase contrast
 
 III.	Run ‘RUN_THIS_002_batch_counting3d.m’
 Open this file on MATLAB and click ‘Run’ button.
