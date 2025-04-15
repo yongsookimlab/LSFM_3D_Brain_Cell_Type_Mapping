@@ -25,8 +25,7 @@ Ideally, a high-performance computer with a 32- or 64-core processor to perform 
 - ilastik: [download](https://www.ilastik.org/documentation/basics/installation) or [ilastik github](https://github.com/ilastik/ilastik)
   - Tested using ilastik version 1.4.0
 - Cellpose 2.0: [github] (https://github.com/MouseLand/cellpose)
-- elastix and transformix: [download](https://elastix.lumc.nl/download.php) or [elastix github](https://github.com/SuperElastix/elastix)
-  - Tested using elastix version 4.8
+- Advanced Normalization Tools (ANTs) in Python (ANTsPy): [github] (https://github.com/ANTsX/ANTsPy)
 - Python: [download](https://www.python.org/downloads/)
   - Tested using Python versions 3.8.3 and 3.9.7
  
@@ -43,7 +42,7 @@ Ideally, a high-performance computer with a 32- or 64-core processor to perform 
 
 ## How To Use
 
-### Pixel Classification for Cell Segmentation using ilastik
+### Cell Segmentation with ilastik
 > The Pixel Classification workflow categorizes pixels by utilizing both pixel features and user annotations. This workflow provides flexibility in choosing from a range of generic pixel features, including smoothed pixel intensity, edge filters, and texture descriptors. After selecting the desired features, a Random Forest classifier is trained interactively using user annotations.
 
 - See ilastik's [tutorial](https://www.ilastik.org/documentation/pixelclassification/pixelclassification) on pixel classification for cell segmentation and all related documentation.
@@ -70,38 +69,74 @@ In brief:
 8. **SAVE PROJECT** continually during ML training.
    - Save this .ilp file on a local computer where the counting code will be executed or on a shared network drive.
    - Remember file pathname for input into counting code.
+  
+  
+### Cell Segmentation with Cellpose 2.0
+
 
 
 ### Cell Counting and Atlas Registration
-**Available in this Github repository are the necessary MATLAB scripts designed for 3D cell counting in STPT-imaged whole mouse brains. However, to execute the main pipeline code ***RUN_THIS_FILE.m***, all downloaded scripts from this repository, installed software, and reference atlas files must be gathered in one parent directory. The code is written with a specific folder structure, which can be found by viewing/downloading the entire code package including test sample data [here](https://pennstateoffice365-my.sharepoint.com/:f:/g/personal/yuk17_psu_edu/ElSwPmP7iJ5MgHRibS-t2UoBStedo5zEuEMjOwElt5RBxA?e=OiGXtY).**
+**Available in this Github repository are the necessary MATLAB scripts designed for 3D cell counting in LSFM-imaged whole mouse brains. However, to execute the main script ***RUN_THIS_002_batch_counting3d.m***, all downloaded scripts from this repository, installed software, and reference atlas files must be gathered in one parent directory. The code is written with a specific folder structure, which can be found by viewing/downloading the entire code package including test sample data [here](https://pennstateoffice365-my.sharepoint.com/:f:/g/personal/yuk17_psu_edu/ElSwPmP7iJ5MgHRibS-t2UoBStedo5zEuEMjOwElt5RBxA?e=OiGXtY).**
 
-> Note: This README provides a general overview of how to run the main MATLAB script **RUN_THIS_FILE.m** that calls on a collective of scripts in the **private** folder. It is crucial to refer to the comments (preceded by % and %%%) in the main script for detailed information on each section and parameter.
+> Note: This README provides an overview for executing the following MATLAB scripts: 1) Editing parameter settings with **EDIT_THIS_001_param_setting.m**, and 2) Running the main script **RUN_THIS_002_batch_counting3d.m** that calls on a collective of scripts in the **private** folder. It is crucial to refer to the comments (preceded by % and %%%) in the main script for detailed information on each section and parameter.
 
-1. Open **RUN_THIS_FILE.m** in MATLAB.
-2. Ensure that all necessary files, folders, and applications are located in one parent directory for the code package. This folder should be saved on your local computer drive.
-3. Outline of steps:
-    - Background subtraction (optional): Images in "background_ch_folder" are subtracted from "images_in_ch_folder" to create a "Signal_minus_Noise" image output in "subtracted_ch_folder".
-    - Normalization (optional): Normalization of intensity is applied to images in "images_in_ch_folder" and saved in "normalized_images_folder".
-    - Registration: Registration is performed using images in "registering_ch_folder" to align with the "reference_brain_background".
-    - Cell counting: Various counting methods are applied based on the "counting_switch" value.
-    - Reverse registration: Back registration of anatomical labels "allen_anno" to the imaged brain in reference space.
-4. Under **Essential Settings**, fill out the necessary input file pathnames for executing the counting code.
-    - Update the "targeting_folder" variable with the main cluster folder path containing stitched STPT images.
-    - Set the paths for "images_in_ch_folder", "registering_ch_folder", "background_ch_folder", and "subtracted_ch_folder".
-    - ***Each input setting is explained in greater detail within the commented code, so please refer to those comments for specific directions.***
-5. Set Functional Switches:
-     - Adjust the switches (background_subtraction_switch, normalization_switch, counting_switch, etc.) based on your requirements.
-6. For running rigid and nonrigid registration (registration_switch), there are two important parameter files for elastix execution:
-     - Rigid (EulerTransform) transformation parameters -> 001_parameters_Rigid.txt
-     - Nonrigid (BSplineTransform) transformation parameters -> 002_parameters_BSpline.txt
-     - In the downloadable folder **elastix**, which should exist in the parent folder of this pipeline code, there are two file versions for each parameter. Each one is optimized for either adult or early postnatal mouse brains.
-        - Adult -> **parameter_adult** folder
-        - Early postnatal -> **parameter_earlypostnatal** folder
-        - Note: It is important to specify which one of these folders will be used in code itself. Additionally, the parameter text files can be edited to improve image registration quality. 
-7. Execute **RUN_THIS_FILE.m** when all information has been filled out and the code switches have been configured.
+I. Edit ‘sess2process.csv’
+This CSV file contains the location/path of the sample images and the functional switches. By adding rows, you can sequentially process multiple datasets. In each column, 1 = switch on, and 0 = switch off, to individually run different parts of the counting code.
+  •	Column A – path_sess: path to your data (session) to process. This path must be directed to the data folder.
+  •	Column B – switch_registration: use ANTs for image registration.
+  •	Column C – switch_preprocess: performs image preprocessing (remove background, make intensity even, etc). 
+  •	Column D – use_preprocessed_img_for_ML: if you want to use preprocessed images for the ilastik model and cell counting, you should set use_preprocessed_img_for_ML = 1. Otherwise, set columns C and D to 0 (zero).
+  •	Column E – switch_machine_learning: applies trained ilastik classification model to entire stitched dataset of indicated signal channel.
+  •	Column F – switch_counting3d: takes ML classification results, applies size and gaussian filters to find the local maxima and centroid (of cells), then, using xyz coordinates of counted cells, performs 3D correction to remove multiple counted cells in a specific location, thus preventing overcounting.
+  •	Column G – switch_postprocess: applies ANTs transformation of counted cell coordinates to the sample data space and the reference brain-registered sample image. Additionally, it generates a quantitative CSV output of counted cells, brain region volumes, and cell densities based on your brain region ontology of choice (ie. CCFv3). 
+  •	Column H – switch_qc3d: provides visualization to enable quality check of 3D counted cells .
+  •	Column I & J – size_filter_pxl_thr1 & size_filter_pxl_thr2: after cell identification by ML (ilastik), you can further filter out cells that are either too small or too large by setting size thresholds. Thr1 is the lower bound and thr2 is the upper bound. 
+
+II.	Edit ‘EDIT_THIS_001_param_setting.m’
+Here, you can specify parameters for your data. For instance, you can specify image resolution for downscaling, iDISCO vs. LifeCanvas sample (different brain orientation), reference brain, annotation file, etc.
+Within the script, only edit what is written in blue, if necessary.
+
+1)	Basic
+  •	params.signal_ch = 1 – identify signal channel from LSFM output; 0 = stitched_00, 1 = stitched_01, 2 = stitched_02
+  •	params.is_LifeCanvas = 1 – this setting has to do with the preferred brain orientation for LSFM imaging in the Kim Lab; 1 = LifeCanvas; 0 = iDISCO; check Advanced Settings at the bottom of the script for editing orientation
+  •	params.xyz_resolution = [1.8 1.8 5.0] – for 4x objective LSFM imaging with 5um z-step intervals, the xyz resolution should be set to [1.80, 1.80, 5]; change if otherwise.
+  •	params.target_resolution = 20 – indicate the target resolution for registration. The downsampled image resolution is usually 20um isotropic, so set this equal to 20.
+
+2)	ML – location of your ilastik model
+  •	params.path_ml_project - set path location to ilastik trained ML trained model, including file name
+
+3)	ANTs registration
+  •	params.path_ref = [pwd filesep 'ref_brains']; (Do not change)
+  •	params.path_ANTs_tmp = 'D:\ANTs_tmp'; if ~exist(params.path_ANTs_tmp, 'dir'), mkdir(params.path_ANTs_tmp); end (Do not change)
+  •	params.fixed = [params.path_ANTs_tmp filesep 'rotated_chx.nii.gz']; (Do not change)
+  •	params.moving = [params.path_ref filesep 'T_P04_LSFM_Symmetric20um_template0_u16_n10_clean_PA.nii'];
+    o	Reference brain template for ANTs registration must be saved as a nifti (.nii) file in the ref_brains folder within the parent working directory (pwd). 
+    o	Check the Properties of the file in Fiji/ImageJ and make sure the pixel width, height, and depth are 1 per pixel.
+  •	params.anno = [params.path_ref filesep 'P04_CCFv3_annotations_16b_v3_iso20um_u16.nii'];
+    o	Reference brain annotations for ANTs registration must be saved as a nifti (.nii) file in the ref_brains folder within the parent working directory (pwd). 
+    o	Check the Properties of the file in Fiji/ImageJ and make sure the pixel width, height, and depth are 1 per pixel.
+  •	params.path2downsample = [path_sess filesep 'stitched_00'];
+    o	Indicate which imaged data folder will be used for down sampling. This is typically a background, autofluorescence channel. 
+  •	params.thr_blurs = 17000 – Set the threshold for background blurs in LSFM data; working range: 12000 ~ 20000
+
+4)	Cell counting 3d
+  •	params.size_filter_pxl_thr1 = size_filter_pxl_thr1; (Do not change) – if need to change, edit sess2process.csv
+  •	params.size_filter_pxl_thr2 = size_filter_pxl_thr2; (Do not change) – if need to change, edit sess2process.csv
+
+5)	QC 3D
+  •	params.z_step = 200 – indicate the Z-step size interval for QC; e.g. skip every 200 z-steps
+  •	params.z_block_depth = 9 – validate 10 z-sections (1+9); e.g.) 1-10, 200-210, ... etc
+  •	params.z_padding = 2 – set the z-step padding outside of ROI block depth
+  •	params.increase_contrast = 0 – change only when image contrast is not good
+  •	params.img_ceiling = 7000 – set the max intensity value of imgs; to increase contrast
+
+III.	Run ‘RUN_THIS_002_batch_counting3d.m’
+Open this file on MATLAB and click ‘Run’ button.
+
+
      - Expected code runtime for a single early postnatal brain can range from approximately 3 to 6 hours using a 64-core computer (if no other tasks are running in the background).
      - If running on a normal home desktop computer (average 8 cores), the runtime may last or exceed 24 to 48 hours.
-8. Output in sample directory:
+10. Output in sample directory:
     - Spreadsheet (counted_3d_cells.csv) with columns for brain regions (listed in hierarchical order based on CCFv3 ontology), cell counts, cell densities, and volumes per region for an individual brain sample.
       -  This output file is ready for analysis. By implementing this code for multiple,  imaged brains, you can calculate and generated averaged datasets with appropriate statistical measures.
       -  All quantitative results in the related [manuscript](https://www.biorxiv.org/content/10.1101/2023.11.24.568585v1.full) were analyzed using Prism (GraphPad) and Excel (Microsoft).
